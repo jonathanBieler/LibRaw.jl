@@ -1,0 +1,3 @@
+[deps]
+Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+LibRaw = "8142987f-9819-4f19-97f4-21b8cfe217f7"
