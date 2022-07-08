@@ -4,7 +4,7 @@ using Test
 @testset "LibRaw.jl" begin
     LibRaw.libraw_version()
 
-    img = LibRaw.Image("data/iris.3.nef")
+    img = LibRaw.RawImage("data/iris.3.nef")
 
     @test LibRaw.width(img) == 6064
     @test LibRaw.height(img) == 4040
@@ -13,6 +13,8 @@ using Test
     @test LibRaw.raw_height(img) == 4040
 
     @test LibRaw.color_description(img) == "RGBG"
+
+    @test length(LibRaw.camera_multiplier(img)) == 4
 
     LibRaw.unpack!(img)
     LibRaw.subtract_black!(img)
@@ -23,7 +25,7 @@ using Test
     raw_data = LibRaw.raw_image(img)
 
     image = LibRaw.demoisaic(LibRaw.BayerAverage(), img)
-    @test size(image) == (LibRaw.width(img), LibRaw.height(img), 3)
+    @test size(image) == (LibRaw.height(img), LibRaw.width(img), 4)
 
     #@show img
 end
