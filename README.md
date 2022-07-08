@@ -2,7 +2,8 @@
 
 [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://jonathanBieler.github.io/LibRaw.jl/stable)
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://jonathanBieler.github.io/LibRaw.jl/dev)
-[![Build Status](https://travis-ci.com/jonathanBieler/LibRaw.jl.svg?branch=main)](https://travis-ci.com/jonathanBieler/LibRaw.jl)
+
+[![Build Status](https://github.com/jonathanBieler/LibRaw.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/jonathanBieler/LibRaw.jl/actions/workflows/CI.yml?query=branch%3Amain)
 [![Coverage](https://codecov.io/gh/jonathanBieler/LibRaw.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/jonathanBieler/LibRaw.jl)
 
 [![Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
