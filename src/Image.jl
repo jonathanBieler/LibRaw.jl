@@ -9,7 +9,12 @@ Base.close(image::RawImage) = begin
     libraw_close(image.data)
 end
 
-function RawImage(path::String) 
+"""
+    RawImage(path::String)
+
+    Constructor for `RawImage` type, taking a path to a raw image file as input.
+"""
+function RawImage(path::String)
     data = libraw_init(0)
     image = RawImage(path, data, false)
     finalizer(close, image)

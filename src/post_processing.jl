@@ -1,3 +1,4 @@
+
 function apply_camera_multiplier!(image::RawImage, d::Array{T, 3}) where T
     @assert size(d, 3) == 4
     mult = LibRaw.camera_multiplier(image)
