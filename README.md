@@ -10,7 +10,7 @@
 
 Minimal bindings for the [LibRaw](https://www.libraw.org/) library. The purpose of this package to read
 raw file and access the data, but not to do post-processing (although a navie demoisaic algorithm is provided for debugging). Colors.jl
-and Images.jl coulld be used for further post-processing.
+and Images.jl could be used for further post-processing.
 
 Bindings were automatically generated using [Clang.jl](https://github.com/JuliaInterop/Clang.jl), see `gen/generator.jl`.
 
