@@ -6,7 +6,7 @@ struct BayerAverage <: DemosaicMethod end
 """
     demoisaic(algorithm::T, image::RawImage) where T <: DemosaicMethod
 
-Demoisaic the raw `image`` using `algorithm` method (e.g. `BayerAverage`).
+Demoisaic the raw `image` using `algorithm` method (e.g. `BayerAverage`).
 
 The resulting array will contains 4 channels (e.g. it will have two green channels),
 use `LibRaw.color_description` to get the description of the channels.

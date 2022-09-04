@@ -16,6 +16,10 @@ Bindings were automatically generated using [Clang.jl](https://github.com/JuliaI
 
 Please open an issue if a functionality is missing or broken.
 
+## Known issues
+
+The matrix returned by `LibRaw.camera_rgb` might be wrong (possible row/column major issue).
+
 ## Example
 
 ```julia

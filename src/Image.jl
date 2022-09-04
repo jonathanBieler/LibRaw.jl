@@ -12,7 +12,7 @@ end
 """
     RawImage(path::String)
 
-    Constructor for `RawImage` type, taking a path to a raw image file as input.
+Constructor for the `RawImage` struct, taking a path to a raw image file as input.
 """
 function RawImage(path::String)
     data = libraw_init(0)
@@ -87,20 +87,15 @@ function color_index(image::RawImage)
 
     idx = zeros(Cint, h, w)
     for i=1:h, j=1:w
-        idx[i,j] = color_index(image.data, i, j)
+        idx[i,j] = color_index(image.data, j, i) #transpose since C is row-major
     end
     idx
 end
-color_index(ptr::Ptr{libraw_data_t}, i, j) = libraw_COLOR(ptr, i-1, j-i) + 1
+# COLOR(int row, int col)
+color_index(ptr::Ptr{libraw_data_t}, i, j) = libraw_COLOR(ptr, i-1, j-1) + 1
 
 
 # Accessors
-
-function image(image::RawImage)
-    ptr = Ptr{Ptr{NTuple{4, ushort}}}(image.data + fieldoffset(libraw_data_t, 1))
-    @assert ptr != C_NULL
-    unsafe_load(ptr)
-end
 
 function rawdata(image::RawImage)
     ptr = Ptr{libraw_rawdata_t}(image.data + fieldoffset(libraw_data_t, 13))
@@ -145,16 +140,51 @@ function raw_image(image::RawImage)
 
     w, h = raw_width(image), raw_height(image)
 
-    return unsafe_wrap(Array, raw_data, (w,h))'
+    return unsafe_wrap(Array, raw_data, (w,h))'#transpose since C is row-major
 end
 
 """
-    camera_multiplier(image:RawImage)
+    camera_multipliers(image:RawImage)
 
-Return of vector of length 4 containing the camera multipliers
+White balance coefficients (as shot). Either read from file or calculated.
+
+Returns of vector of length 4 containing the camera multipliers.
 https://www.libraw.org/node/2411
+
 """
-function camera_multiplier(image::RawImage)
+function camera_multipliers(image::RawImage)
     @assert image.data != C_NULL
     [libraw_get_cam_mul(image.data, i) for i in 0:3]
+end
+
+"""
+    pre_multipliers(image:RawImage)
+
+White balance coefficients for daylight (daylight balance). Either read from file, 
+or calculated on the basis of file data, or taken from hardcoded constants.
+
+Returns a vector of length 4 containing the pre-multipliers.
+"""
+function pre_multipliers(image::RawImage)
+    @assert image.data != C_NULL
+    [libraw_get_pre_mul(image.data, i) for i in 0:3]
+end
+
+"""
+    camera_rgb(image:RawImage)
+
+Camera to sRGB conversion matrix.
+
+Returns of a 3x4 matrix.
+"""
+function camera_rgb(image::RawImage)
+    @assert image.data != C_NULL
+    # float rgb_cam[3][4];
+    [libraw_get_rgb_cam(image.data, i, j) for i in 0:2, j in 0:3]
+end
+
+
+function raw2image!(image::RawImage)
+    @assert image.data != C_NULL
+    @assert libraw_raw2image(image.data) == 0
 end

@@ -6,6 +6,10 @@ using Test
 
     img = LibRaw.RawImage("data/iris.3.nef")
 
+    clist = LibRaw.camera_list()
+    @test length(clist) == LibRaw.libraw_cameraCount()
+    @test "Apple iPad Pro" ∈ clist
+
     @test LibRaw.width(img) == 6064
     @test LibRaw.height(img) == 4040
 
@@ -14,7 +18,9 @@ using Test
 
     @test LibRaw.color_description(img) == "RGBG"
 
-    @test length(LibRaw.camera_multiplier(img)) == 4
+    @test length(LibRaw.camera_multipliers(img)) == 4
+    @test length(LibRaw.pre_multipliers(img)) == 4
+    @test size(LibRaw.camera_rgb(img)) == (3,4)
 
     LibRaw.unpack!(img)
     LibRaw.subtract_black!(img)
