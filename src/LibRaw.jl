@@ -1,5 +1,8 @@
 module LibRaw
 
+    using LoopVectorization
+    import Base.maximum
+
     include("lib/LibRaw.jl")
     include("Image.jl")
     include("demosaic.jl")

@@ -38,7 +38,12 @@ end
 function demoisaic!(algorithm::BayerAverage, debayered, image::RawImage)
 
     col_indices = color_index(image)
+
+    black = black_level(image)
+
     raw_data = raw_image(image)
+    t = x -> x >=  black ? x - black : zero(eltype(raw_data))
+    @. raw_data = t(raw_data)
 
     @assert size(col_indices) == size(raw_data)
     @assert size(col_indices) == size(debayered)[1:2]

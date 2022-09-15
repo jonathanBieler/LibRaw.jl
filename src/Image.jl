@@ -10,11 +10,11 @@ Base.close(image::RawImage) = begin
 end
 
 """
-    RawImage(path::String)
+    RawImage(path::String; unpack = true)
 
 Constructor for the `RawImage` struct, taking a path to a raw image file as input.
 """
-function RawImage(path::String)
+function RawImage(path::String; unpack = true)
     data = libraw_init(0)
     image = RawImage(path, data, false)
     finalizer(close, image)
@@ -22,6 +22,8 @@ function RawImage(path::String)
     err = libraw_open_file(data, path)
     err ≠ 0 && error("Got error code $err when opening file $path")
     
+    unpack && unpack!(image)
+
     image
 end
 
@@ -73,6 +75,7 @@ end
 This call will subtract black level values from RAW data (for suitable RAW data).
 """
 function subtract_black!(image::RawImage)
+    !image.isunpacked && unpack!(image)
     LibRaw.libraw_subtract_black(image.data)
     image
 end
@@ -114,6 +117,64 @@ function iparams(image::RawImage)
     unsafe_load(ptr)
 end
 
+"""
+    colordata(image::RawImage)
+
+Returns a pointer to `colordata` field of `libraw_data_t`.
+"""
+function colordata(image::RawImage)
+    ptr = Ptr{libraw_colordata_t}(image.data + fieldoffset(libraw_data_t, 10))
+    @assert ptr != C_NULL
+    ptr
+end
+
+"""
+    black_level(image::RawImage)
+
+Black level. Depending on the camera, it may be zero (this means that black has been subtracted 
+at the unpacking stage or by the camera itself), calculated at the unpacking stage, read from the RAW file, or hardcoded.
+"""
+function black_level(image::RawImage)
+    cdata = colordata(image)
+    ptr = Ptr{Cuint}(cdata + fieldoffset(libraw_colordata_t, 3))
+    unsafe_load(ptr)
+end
+
+"""
+    black_level_per_channel(image::RawImage)
+
+    ! This returns the 4 first values in the `cblack` field of `libraw_colordata_t`. 
+    Libraw seems to do extra processing to populate these values, see :
+    https://github.com/letmaik/rawpy/blob/e2f171a0a50053209938e37de3ae0b5fcf6daf08/rawpy/data_helper.h#L11
+"""
+function black_level_per_channel(image::RawImage)
+    cdata = colordata(image)
+    ptr = Ptr{Cuint}(cdata + fieldoffset(libraw_colordata_t, 2))
+    @assert ptr != C_NULL
+    unsafe_wrap(Array, ptr, 4)
+end
+
+"""
+    maximum(image::RawImage)
+
+Maximum pixel value. Calculated from the data for most cameras, hardcoded for others. 
+This value may be changed on postprocessing stage (when black subtraction performed) and by automated maximum adjustment.
+"""
+function maximum(image::RawImage)
+    cdata = colordata(image)
+    ptr = Ptr{Cuint}(cdata + fieldoffset(libraw_colordata_t, 5))
+    @assert ptr != C_NULL
+    unsafe_load(ptr)
+end
+
+function camera_xyz(image::RawImage)
+    cdata = colordata(image)
+    ptr = Ptr{Cfloat}(cdata + fieldoffset(libraw_colordata_t, 15))
+    @assert ptr != C_NULL
+    unsafe_wrap(Array, ptr, (3,4))'
+end
+
+
 char_to_string(c::NTuple{N,Cchar})  where N = String([Char(c) for c in c if c != 0])
 
 """
@@ -133,6 +194,9 @@ Wraps the `raw_image` field of `libraw_rawdata_t` in an Array. The data might be
 corrupted when `image` is GC'ed.
 """
 function raw_image(image::RawImage)
+
+    !image.isunpacked && unpack!(image)
+
     rd = LibRaw.rawdata(image)
     ptr = Ptr{Ptr{LibRaw.ushort}}(rd + fieldoffset(LibRaw.libraw_rawdata_t, 2))
     @assert ptr != C_NULL
@@ -175,12 +239,12 @@ end
 
 Camera to sRGB conversion matrix.
 
-Returns of a 3x4 matrix.
+Returns of a 3x3 matrix (last row is dropped).
 """
 function camera_rgb(image::RawImage)
     @assert image.data != C_NULL
     # float rgb_cam[3][4];
-    [libraw_get_rgb_cam(image.data, i, j) for i in 0:2, j in 0:3]
+    [libraw_get_rgb_cam(image.data, i, j) for i in 0:2, j in 0:2] # last row is zeros
 end
 
 

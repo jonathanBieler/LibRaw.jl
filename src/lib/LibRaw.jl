@@ -1012,21 +1012,21 @@ struct libraw_sony_info_t
 end
 
 struct libraw_colordata_t
-    curve::NTuple{65536, ushort}
+    curve::NTuple{65536, ushort}#1
     cblack::NTuple{4104, Cuint}
     black::Cuint
     data_maximum::Cuint
-    maximum::Cuint
+    maximum::Cuint#5
     linear_max::NTuple{4, Clong}
     fmaximum::Cfloat
     fnorm::Cfloat
     white::NTuple{8, NTuple{8, ushort}}
-    cam_mul::NTuple{4, Cfloat}
+    cam_mul::NTuple{4, Cfloat}#10
     pre_mul::NTuple{4, Cfloat}
     cmatrix::NTuple{3, NTuple{4, Cfloat}}
     ccm::NTuple{3, NTuple{4, Cfloat}}
     rgb_cam::NTuple{3, NTuple{4, Cfloat}}
-    cam_xyz::NTuple{4, NTuple{3, Cfloat}}
+    cam_xyz::NTuple{4, NTuple{3, Cfloat}}#15
     phase_one_data::ph1_t
     flash_used::Cfloat
     canon_ev::Cfloat
