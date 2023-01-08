@@ -22,7 +22,7 @@ Please open an issue if a functionality is missing or broken.
 
 ## Example
 
-See examples/process_raw_files.jl for a more complete example.
+See [examples/process_raw_file.jl](examples/process_raw_file.jl) for a more complete example.
 
 ```julia
 raw_img = LibRaw.RawImage("data/ccp2.nef")
